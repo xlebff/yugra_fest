@@ -24,7 +24,6 @@ public class DroneControl : MonoBehaviour
     private Rigidbody _rb;
     private XRInputManager _input;
 
-    // Целевая высота для автобалансировки
     [SerializeField] private float _targetHeight = 10f;
     private bool _isActive = false;
 
@@ -56,7 +55,7 @@ public class DroneControl : MonoBehaviour
     private void ApplyDronePhysics()
     {
         Vector2 leftStick = _input.GetStickInput(XRNode.LeftHand);
-        Vector2 rightStick = _input.GetStickInput(XRNode.RightHand);
+        Vector2 rightStick = -(_input.GetStickInput(XRNode.RightHand));
 
         float baseThrust = (leftStick.y + 1f) * 0.3f;
 
@@ -107,23 +106,19 @@ public class DroneControl : MonoBehaviour
     {
         if (!_enableAutoStabilization) return;
 
-        // 1. Стабилизация высоты
         float currentHeight = transform.position.y;
         float heightDifference = _targetHeight - currentHeight;
 
         if (heightDifference > 0.1f)
         {
-            // Плавно поднимаемся к целевой высоте
             float liftForce = Mathf.Clamp(heightDifference * 2f, 0, 5f);
             _rb.AddForce(Vector3.up * liftForce, ForceMode.Force);
         }
 
-        // 2. Стабилизация углов (автовыравнивание)
         Vector3 currentAngularVelocity = _rb.angularVelocity;
         Vector3 stabilizationTorque = -currentAngularVelocity * _stabilizationForce;
         _rb.AddTorque(stabilizationTorque, ForceMode.Force);
 
-        // 3. Ограничение максимальной высоты
         if (currentHeight > 10f)
         {
             Vector3 downwardForce = Vector3.down * (currentHeight - 10f) * 3f;
@@ -133,7 +128,7 @@ public class DroneControl : MonoBehaviour
 
     private void UpdateRotors(float fl, float fr, float bl, float br)
     {
-        float rotorSpeed = 500f; // УМЕНЬШЕНО!
+        float rotorSpeed = 500f;
 
         if (_frontLeftRotor)
             _frontLeftRotor.Rotate(0, fl * rotorSpeed * Time.deltaTime, 0);
@@ -152,7 +147,6 @@ public class DroneControl : MonoBehaviour
         if (_isActive)
         {
             Debug.Log("Drone activated.");
-            // Плавный взлет до целевой высоты
             _targetHeight = transform.position.y + 2f;
         }
         else Debug.Log("Drone deactivated.");
