@@ -183,7 +183,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 2100000, guid: 66ea5c3adcd622b4893e72ec247000e7, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -223,7 +223,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 5.25, y: 5.25, z: 5.25}
+  m_LocalScale: {x: 50.74, y: 50.74, z: 50.74}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
@@ -449,8 +449,8 @@ Rigidbody:
   m_GameObject: {fileID: 1490959672}
   serializedVersion: 4
   m_Mass: 1
-  m_Drag: 0
-  m_AngularDrag: 0.05
+  m_Drag: 0.1
+  m_AngularDrag: 2
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
   m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
@@ -479,18 +479,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dbab286efc34fc443bc53ee36a92cc08, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxThrustForce: 26.3
-  pitchTorque: 7.31
-  rollTorque: 7.37
-  yawTorque: 2.3
-  drag: 0.1
-  angularDrag: 2
-  frontLeftRotor: {fileID: 1819113236}
-  frontRightRotor: {fileID: 1808257418}
-  backLeftRotor: {fileID: 1441218021}
-  backRightRotor: {fileID: 1387601231}
-  enableAutoStabilization: 1
-  stabilizationForce: 2
+  _maxThrustForce: 15
+  _pitchTorque: 8
+  _rollTorque: 8
+  _yawTorque: 4
+  _drag: 0.1
+  _angularDrag: 2
+  _frontLeftRotor: {fileID: 1819113236}
+  _frontRightRotor: {fileID: 1808257418}
+  _backLeftRotor: {fileID: 1441218021}
+  _backRightRotor: {fileID: 1387601231}
+  _enableAutoStabilization: 1
+  _stabilizationForce: 2
+  _targetHeight: 10
 --- !u!65 &1490959676
 BoxCollider:
   m_ObjectHideFlags: 0
