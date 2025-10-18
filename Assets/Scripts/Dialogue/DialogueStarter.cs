@@ -39,6 +39,8 @@ public class DialogueStarter : MonoBehaviour
     private void DialogueStart()
     {
         MoveDisabling();
+        _dialogue.enabled = true;
+
         Debug.Log("The dialogue started.");
         _isStarted = true;
     }
@@ -53,5 +55,7 @@ public class DialogueStarter : MonoBehaviour
 
         if (_snapTurn is not null)
             _snapTurn.enabled = false;
+
+        Debug.Log("Moving has been disabled.");
     }
 }
