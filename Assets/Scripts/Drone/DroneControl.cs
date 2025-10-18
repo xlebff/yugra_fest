@@ -24,7 +24,7 @@ public class DroneControl : MonoBehaviour
     private Rigidbody _rb;
     private XRInputManager _input;
 
-    // Целевая высота для автобалансировки
+    // Г–ГҐГ«ГҐГўГ Гї ГўГ»Г±Г®ГІГ  Г¤Г«Гї Г ГўГІГ®ГЎГ Г«Г Г­Г±ГЁГ°Г®ГўГЄГЁ
     [SerializeField] private float _targetHeight = 10f;
     private bool _isActive = false;
 
@@ -55,32 +55,32 @@ public class DroneControl : MonoBehaviour
 
     private void ApplyDronePhysics()
     {
-        // Получаем ввод с контроллеров
+        // ГЏГ®Г«ГіГ·Г ГҐГ¬ ГўГўГ®Г¤ Г± ГЄГ®Г­ГІГ°Г®Г«Г«ГҐГ°Г®Гў
         Vector2 leftStick = _input.GetStickInput(XRNode.LeftHand);
-        Vector2 rightStick = _input.GetStickInput(XRNode.RightHand);
+        Vector2 rightStick = -(_input.GetStickInput(XRNode.RightHand));
 
-        // БАЛАНСИРОВКА СИЛ - уменьшаем коэффициенты
+        // ГЃГЂГ‹ГЂГЌГ‘Г€ГђГЋГ‚ГЉГЂ Г‘Г€Г‹ - ГіГ¬ГҐГ­ГјГёГ ГҐГ¬ ГЄГ®ГЅГґГґГЁГ¶ГЁГҐГ­ГІГ»
         float baseThrust = (leftStick.y + 1f) * 0.3f;
 
-        // Реальные управления как в Mode 2
+        // ГђГҐГ Г«ГјГ­Г»ГҐ ГіГЇГ°Г ГўГ«ГҐГ­ГЁГї ГЄГ ГЄ Гў Mode 2
         float thrust = baseThrust * _maxThrustForce;
         float pitch = rightStick.y * _pitchTorque * 0.1f;
         float roll = rightStick.x * _rollTorque * 0.1f;
         float yaw = leftStick.x * _yawTorque * 0.1f;
 
-        // РАСПРЕДЕЛЕНИЕ СИЛ ПО МОТОРАМ (как в реальном дроне)
+        // ГђГЂГ‘ГЏГђГ…Г„Г…Г‹Г…ГЌГ€Г… Г‘Г€Г‹ ГЏГЋ ГЊГЋГ’ГЋГђГЂГЊ (ГЄГ ГЄ Гў Г°ГҐГ Г«ГјГ­Г®Г¬ Г¤Г°Г®Г­ГҐ)
         float fl = thrust + pitch + roll - yaw;
         float fr = thrust + pitch - roll + yaw;
         float bl = thrust - pitch + roll + yaw;
         float br = thrust - pitch - roll - yaw;
 
-        // Применяем силы в ЛОКАЛЬНЫХ координатах
+        // ГЏГ°ГЁГ¬ГҐГ­ГїГҐГ¬ Г±ГЁГ«Г» Гў Г‹ГЋГЉГЂГ‹ГњГЌГ›Г• ГЄГ®Г®Г°Г¤ГЁГ­Г ГІГ Гµ
         ApplyMotorForce(_frontLeftRotor, fl);
         ApplyMotorForce(_frontRightRotor, fr);
         ApplyMotorForce(_backLeftRotor, bl);
         ApplyMotorForce(_backRightRotor, br);
 
-        // Визуальное вращение роторов
+        // Г‚ГЁГ§ГіГ Г«ГјГ­Г®ГҐ ГўГ°Г Г№ГҐГ­ГЁГҐ Г°Г®ГІГ®Г°Г®Гў
         UpdateRotors(fl, fr, bl, br);
     }
 
@@ -88,7 +88,7 @@ public class DroneControl : MonoBehaviour
     {
         if (rotor != null)
         {
-            // Сила применяется ВВЕРХ от ротора
+            // Г‘ГЁГ«Г  ГЇГ°ГЁГ¬ГҐГ­ГїГҐГІГ±Гї Г‚Г‚Г…ГђГ• Г®ГІ Г°Г®ГІГ®Г°Г 
             Vector3 force = rotor.up * Mathf.Clamp(power, 0, _maxThrustForce) * 0.25f;
             _rb.AddForceAtPosition(force, rotor.position, ForceMode.Force);
         }
@@ -98,23 +98,23 @@ public class DroneControl : MonoBehaviour
     {
         if (!_enableAutoStabilization) return;
 
-        // 1. Стабилизация высоты
+        // 1. Г‘ГІГ ГЎГЁГ«ГЁГ§Г Г¶ГЁГї ГўГ»Г±Г®ГІГ»
         float currentHeight = transform.position.y;
         float heightDifference = _targetHeight - currentHeight;
 
         if (heightDifference > 0.1f)
         {
-            // Плавно поднимаемся к целевой высоте
+            // ГЏГ«Г ГўГ­Г® ГЇГ®Г¤Г­ГЁГ¬Г ГҐГ¬Г±Гї ГЄ Г¶ГҐГ«ГҐГўГ®Г© ГўГ»Г±Г®ГІГҐ
             float liftForce = Mathf.Clamp(heightDifference * 2f, 0, 5f);
             _rb.AddForce(Vector3.up * liftForce, ForceMode.Force);
         }
 
-        // 2. Стабилизация углов (автовыравнивание)
+        // 2. Г‘ГІГ ГЎГЁГ«ГЁГ§Г Г¶ГЁГї ГіГЈГ«Г®Гў (Г ГўГІГ®ГўГ»Г°Г ГўГ­ГЁГўГ Г­ГЁГҐ)
         Vector3 currentAngularVelocity = _rb.angularVelocity;
         Vector3 stabilizationTorque = -currentAngularVelocity * _stabilizationForce;
         _rb.AddTorque(stabilizationTorque, ForceMode.Force);
 
-        // 3. Ограничение максимальной высоты
+        // 3. ГЋГЈГ°Г Г­ГЁГ·ГҐГ­ГЁГҐ Г¬Г ГЄГ±ГЁГ¬Г Г«ГјГ­Г®Г© ГўГ»Г±Г®ГІГ»
         if (currentHeight > 10f)
         {
             Vector3 downwardForce = Vector3.down * (currentHeight - 10f) * 3f;
@@ -124,7 +124,7 @@ public class DroneControl : MonoBehaviour
 
     private void UpdateRotors(float fl, float fr, float bl, float br)
     {
-        float rotorSpeed = 500f; // УМЕНЬШЕНО!
+        float rotorSpeed = 500f; // Г“ГЊГ…ГЌГњГГ…ГЌГЋ!
 
         if (_frontLeftRotor)
             _frontLeftRotor.Rotate(0, fl * rotorSpeed * Time.deltaTime, 0);
@@ -143,7 +143,7 @@ public class DroneControl : MonoBehaviour
         if (_isActive)
         {
             Debug.Log("Drone activated.");
-            // Плавный взлет до целевой высоты
+            // ГЏГ«Г ГўГ­Г»Г© ГўГ§Г«ГҐГІ Г¤Г® Г¶ГҐГ«ГҐГўГ®Г© ГўГ»Г±Г®ГІГ»
             _targetHeight = transform.position.y + 2f;
         }
         else Debug.Log("Drone deactivated.");
