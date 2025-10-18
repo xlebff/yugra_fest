@@ -38,7 +38,7 @@ public class DroneControl : MonoBehaviour
         _rb.useGravity = true;
     }
 
-    private void Start() { if (_input != null) _input.OnPrimaryButtonPressed += ToggleDrone; }
+    private void Start() { _input.OnPrimaryButtonPressed += ToggleDrone; }
 
     private void OnDestroy()
     {
@@ -55,40 +55,49 @@ public class DroneControl : MonoBehaviour
 
     private void ApplyDronePhysics()
     {
-        // Получаем ввод с контроллеров
         Vector2 leftStick = _input.GetStickInput(XRNode.LeftHand);
         Vector2 rightStick = _input.GetStickInput(XRNode.RightHand);
 
-        // БАЛАНСИРОВКА СИЛ - уменьшаем коэффициенты
         float baseThrust = (leftStick.y + 1f) * 0.3f;
 
-        // Реальные управления как в Mode 2
         float thrust = baseThrust * _maxThrustForce;
         float pitch = rightStick.y * _pitchTorque * 0.1f;
         float roll = rightStick.x * _rollTorque * 0.1f;
         float yaw = leftStick.x * _yawTorque * 0.1f;
+        float manualYaw = leftStick.x * _yawTorque * 0.1f;
 
-        // РАСПРЕДЕЛЕНИЕ СИЛ ПО МОТОРАМ (как в реальном дроне)
-        float fl = thrust + pitch + roll - yaw;
-        float fr = thrust + pitch - roll + yaw;
-        float bl = thrust - pitch + roll + yaw;
-        float br = thrust - pitch - roll - yaw;
+        float fl = thrust + pitch + roll - manualYaw;
+        float fr = thrust + pitch - roll + manualYaw;
+        float bl = thrust - pitch + roll + manualYaw;
+        float br = thrust - pitch - roll - manualYaw;
 
-        // Применяем силы в ЛОКАЛЬНЫХ координатах
         ApplyMotorForce(_frontLeftRotor, fl);
         ApplyMotorForce(_frontRightRotor, fr);
         ApplyMotorForce(_backLeftRotor, bl);
         ApplyMotorForce(_backRightRotor, br);
 
-        // Визуальное вращение роторов
         UpdateRotors(fl, fr, bl, br);
+
+        if (Mathf.Abs(leftStick.x) > 0.1f)
+        {
+            ApplyTurnVisuals(leftStick.x);
+        }
+    }
+
+    private void ApplyTurnVisuals(float turnInput)
+    {
+        float tiltAngle = turnInput * 10f;
+        Quaternion targetTilt = Quaternion.Euler(0, 0, -tiltAngle);
+
+        transform.rotation = Quaternion.Slerp(transform.rotation,
+                                            transform.rotation * targetTilt,
+                                            Time.deltaTime * 3f);
     }
 
     private void ApplyMotorForce(Transform rotor, float power)
     {
         if (rotor != null)
         {
-            // Сила применяется ВВЕРХ от ротора
             Vector3 force = rotor.up * Mathf.Clamp(power, 0, _maxThrustForce) * 0.25f;
             _rb.AddForceAtPosition(force, rotor.position, ForceMode.Force);
         }

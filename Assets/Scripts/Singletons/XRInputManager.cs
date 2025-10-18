@@ -6,14 +6,12 @@ public class XRInputManager : MonoBehaviour
 {
     public static XRInputManager Instance { get; private set; }
 
-    // События для кнопок
     public event System.Action OnPrimaryButtonPressed;
     public event System.Action OnSecondaryButtonPressed;
     public event System.Action OnTriggerPressed;
     public event System.Action OnGripPressed;
     public event System.Action OnMenuButtonPressed;
 
-    // Стики (аналоговый ввод)
     public Vector2 LeftStick => _leftStick;
     public Vector2 RightStick => _rightStick;
     public float LeftTrigger => _leftTrigger;
@@ -26,7 +24,6 @@ public class XRInputManager : MonoBehaviour
     private float _leftTrigger;
     private float _rightTrigger;
 
-    // Состояния кнопок (для предотвращения спама)
     private bool _leftPrimaryWasPressed;
     private bool _rightPrimaryWasPressed;
     private bool _leftSecondaryWasPressed;
@@ -46,10 +43,7 @@ public class XRInputManager : MonoBehaviour
             DontDestroyOnLoad(gameObject);
             InitializeControllers();
         }
-        else
-        {
-            Destroy(gameObject);
-        }
+        else Destroy(gameObject);
     }
 
     private void InitializeControllers()
@@ -101,7 +95,6 @@ public class XRInputManager : MonoBehaviour
                                  ref bool leftWasPressed, ref bool rightWasPressed,
                                  System.Action action)
     {
-        // Left controller
         if (_leftController.TryGetFeatureValue(button, out bool leftPressed) && leftPressed)
         {
             if (!leftWasPressed)
@@ -110,12 +103,8 @@ public class XRInputManager : MonoBehaviour
                 leftWasPressed = true;
             }
         }
-        else
-        {
-            leftWasPressed = false;
-        }
+        else leftWasPressed = false;
 
-        // Right controller
         if (_rightController.TryGetFeatureValue(button, out bool rightPressed) && rightPressed)
         {
             if (!rightWasPressed)
@@ -124,61 +113,34 @@ public class XRInputManager : MonoBehaviour
                 rightWasPressed = true;
             }
         }
-        else
-        {
-            rightWasPressed = false;
-        }
+        else rightWasPressed = false;
     }
 
     private void UpdateStickInput()
     {
-        // Чтение стиков
         _leftController.TryGetFeatureValue(CommonUsages.primary2DAxis, out _leftStick);
         _rightController.TryGetFeatureValue(CommonUsages.primary2DAxis, out _rightStick);
     }
 
     private void UpdateTriggerInput()
     {
-        // Аналоговые значения триггеров (0-1)
         _leftController.TryGetFeatureValue(CommonUsages.trigger, out _leftTrigger);
         _rightController.TryGetFeatureValue(CommonUsages.trigger, out _rightTrigger);
     }
 
-    // Публичные методы для проверки состояний
-    public bool IsPrimaryButtonPressed(XRNode hand = XRNode.RightHand)
-    {
-        return GetButtonState(CommonUsages.primaryButton, hand);
-    }
+    public bool IsPrimaryButtonPressed(XRNode hand = XRNode.RightHand) => GetButtonState(CommonUsages.primaryButton, hand);
 
-    public bool IsSecondaryButtonPressed(XRNode hand = XRNode.RightHand)
-    {
-        return GetButtonState(CommonUsages.secondaryButton, hand);
-    }
+    public bool IsSecondaryButtonPressed(XRNode hand = XRNode.RightHand) => GetButtonState(CommonUsages.secondaryButton, hand);
 
-    public bool IsTriggerPressed(XRNode hand = XRNode.RightHand)
-    {
-        return GetButtonState(CommonUsages.triggerButton, hand);
-    }
+    public bool IsTriggerPressed(XRNode hand = XRNode.RightHand) => GetButtonState(CommonUsages.triggerButton, hand);
 
-    public bool IsGripPressed(XRNode hand = XRNode.RightHand)
-    {
-        return GetButtonState(CommonUsages.gripButton, hand);
-    }
+    public bool IsGripPressed(XRNode hand = XRNode.RightHand) => GetButtonState(CommonUsages.gripButton, hand);
 
-    public bool IsMenuButtonPressed(XRNode hand = XRNode.RightHand)
-    {
-        return GetButtonState(CommonUsages.menuButton, hand);
-    }
+    public bool IsMenuButtonPressed(XRNode hand = XRNode.RightHand) => GetButtonState(CommonUsages.menuButton, hand);
 
-    public float GetTriggerValue(XRNode hand = XRNode.RightHand)
-    {
-        return hand == XRNode.LeftHand ? _leftTrigger : _rightTrigger;
-    }
+    public float GetTriggerValue(XRNode hand = XRNode.RightHand) => hand == XRNode.LeftHand ? _leftTrigger : _rightTrigger;
 
-    public Vector2 GetStickInput(XRNode hand = XRNode.LeftHand)
-    {
-        return hand == XRNode.LeftHand ? _leftStick : _rightStick;
-    }
+    public Vector2 GetStickInput(XRNode hand = XRNode.LeftHand) => hand == XRNode.LeftHand ? _leftStick : _rightStick;
 
     private bool GetButtonState(InputFeatureUsage<bool> button, XRNode hand)
     {

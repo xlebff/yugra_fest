@@ -1,13 +1,14 @@
 using System.Collections;
 using UnityEngine;
 
+[RequireComponent(typeof(AudioSource))]
 public class DialogueVoice : MonoBehaviour
 {
     [SerializeField] private AudioSource _audioSource;
 
     private Coroutine _currentVoiceCoroutine;
 
-    private void OnValidate() { _audioSource = _audioSource ?? GetComponent<AudioSource>(); }
+    private void OnValidate() => _audioSource = _audioSource ?? GetComponent<AudioSource>();
 
     public void StartTalking(AudioClip clip)
     {

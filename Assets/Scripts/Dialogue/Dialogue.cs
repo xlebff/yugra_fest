@@ -1,12 +1,11 @@
 using UnityEngine;
-using UnityEngine.XR.Interaction.Toolkit;
-
 public enum DialogugeConfig { GUI, VOICE, BOTH }
 
 public class Dialogue : MonoBehaviour
 {
     [Header("Config")]
     [SerializeField] private DialogugeConfig _config;
+    [SerializeField] private MonoBehaviour[] _nextActions;
 
     [Header("Voice")]
     [SerializeField] private AudioClip[] _voiceLines;
@@ -34,13 +33,11 @@ public class Dialogue : MonoBehaviour
         this.enabled = false;
     }
 
-    private void Start() 
-    { 
-        XRInputManager.Instance.OnSecondaryButtonPressed += ShowNextDialog;
-    }
+    private void Start() => XRInputManager.Instance.OnSecondaryButtonPressed += ShowNextDialog;
 
     private void OnEnable()
     {
+        MovingManager.Instance.MoveDisabling();
         if (isPrintable()) _gui.GUIOpen();
         ShowNextDialog();
     }
@@ -48,23 +45,14 @@ public class Dialogue : MonoBehaviour
     private void OnDisable() 
     {
         if (isPrintable()) _gui.GUIClose();
+
         Destroy(_gui);
         Destroy(_voice);
-        MoveEnabling();
-        if (XRInputManager.Instance != null) XRInputManager.Instance.OnSecondaryButtonPressed -= ShowNextDialog;
-    }
 
-    private void MoveEnabling()
-    {
-        var locomotionSystem = FindObjectOfType<LocomotionSystem>();
-        var continuousMove = FindObjectOfType<ContinuousMoveProviderBase>();
-        var snapTurn = FindObjectOfType<SnapTurnProviderBase>();
+        if (MovingManager.Instance is not null) MovingManager.Instance.MoveEnabling();
+        if (XRInputManager.Instance is not null) XRInputManager.Instance.OnSecondaryButtonPressed -= ShowNextDialog;
 
-        if (locomotionSystem != null) locomotionSystem.enabled = true;
-        if (continuousMove != null) continuousMove.enabled = true;
-        if (snapTurn != null) snapTurn.enabled = true;
-
-        Debug.Log("Moving has been enabled.");
+        foreach (MonoBehaviour action in _nextActions) action.enabled = true;
     }
 
     public void ShowNextDialog()
@@ -100,15 +88,9 @@ public class Dialogue : MonoBehaviour
         }
     }
 
-    private bool isPrintable()
-    {
-        return _config == DialogugeConfig.BOTH || _config == DialogugeConfig.GUI;
-    }
+    private bool isPrintable() => _config == DialogugeConfig.BOTH || _config == DialogugeConfig.GUI;
 
-    private bool isVoice()
-    {
-        return _config == DialogugeConfig.VOICE || _config == DialogugeConfig.BOTH;
-    }
+    private bool isVoice() => _config == DialogugeConfig.VOICE || _config == DialogugeConfig.BOTH;
 
-    public string getLastSentence() { return this._sentences[--_currentIndex]; }
+    public string getLastSentence() => this._sentences[--_currentIndex];
 }

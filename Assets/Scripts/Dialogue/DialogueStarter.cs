@@ -38,24 +38,8 @@ public class DialogueStarter : MonoBehaviour
 
     private void DialogueStart()
     {
-        MoveDisabling();
         _dialogue.enabled = true;
-
-        Debug.Log("The dialogue started.");
         _isStarted = true;
-    }
-
-    private void MoveDisabling()
-    {
-        if (_locomotionSystem is not null)
-            _locomotionSystem.enabled = false;
-
-        if (_continuousMove is not null)
-            _continuousMove.enabled = false;
-
-        if (_snapTurn is not null)
-            _snapTurn.enabled = false;
-
-        Debug.Log("Moving has been disabled.");
+        Debug.Log("The dialogue started.");
     }
 }

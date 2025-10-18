@@ -10,10 +10,7 @@ public class DialogueGUI : MonoBehaviour
 
     private Coroutine _currentPrintingCoroutine = null;
 
-    private void OnValidate()
-    {
-        _gui.SetActive(false);
-    }
+    private void OnValidate() => _gui.SetActive(false);
 
     public void GUIOpen()
     {
@@ -41,7 +38,7 @@ public class DialogueGUI : MonoBehaviour
         return true;
     }
 
-    public void setText(string setnetce) { _textField.text = setnetce; }
+    public void setText(string setnetce) => _textField.text = setnetce;
 
     private IEnumerator printingSentence(string sentence)
     {
